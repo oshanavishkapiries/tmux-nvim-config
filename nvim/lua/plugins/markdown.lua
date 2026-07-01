@@ -1,12 +1,34 @@
 return {
   {
-    "iamcco/markdown-preview.nvim",
-    build = "cd app && npm install",
-    ft = { "markdown" },
-    cmd = {
-      "MarkdownPreview",
-      "MarkdownPreviewStop",
-      "MarkdownPreviewToggle",
+    "akinsho/toggleterm.nvim",
+    version = "*",
+    opts = {},
+    keys = {
+      {
+        "<leader>mp",
+        function()
+          local file = vim.fn.expand("%:p")
+          local Terminal = require("toggleterm.terminal").Terminal
+          local glow = Terminal:new({
+            cmd = "glow " .. vim.fn.shellescape(file),
+            direction = "float",
+            close_on_exit = false,
+          })
+          glow:toggle()
+        end,
+        ft = "markdown",
+        desc = "Preview markdown with glow",
+      },
+    },
+  },
+  {
+    "mfussenegger/nvim-lint",
+    opts = {
+      linters = {
+        ["markdownlint-cli2"] = {
+          prepend_args = { "--config", vim.fn.stdpath("config") .. "/.markdownlint.jsonc" },
+        },
+      },
     },
   },
 }

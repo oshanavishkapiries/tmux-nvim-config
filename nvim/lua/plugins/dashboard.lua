@@ -47,6 +47,15 @@ return {
         end,
       })
 
+      local function refresh_visible_starters()
+        for _, win_id in ipairs(vim.api.nvim_list_wins()) do
+          local buf_id = vim.api.nvim_win_get_buf(win_id)
+          if vim.bo[buf_id].filetype == "ministarter" then
+            starter.refresh(buf_id)
+          end
+        end
+      end
+
       -- mini.starter only re-centers on VimResized (terminal resize) and
       -- BufEnter, so opening a split (e.g. a file-explorer panel) shrinks the
       -- starter window without triggering a recenter. WinResized covers that.
@@ -60,6 +69,13 @@ return {
           end
         end,
       })
+
+      -- The header (and thus the clock) is only recomputed when
+      -- starter.refresh() runs. mini.starter opens the dashboard on
+      -- VimEnter wrapped in `noautocmd`, which suppresses FileType, so a
+      -- FileType-based hook never fires for that first, auto-opened
+      -- render and the clock is stuck at startup time. Poll instead.
+      vim.uv.new_timer():start(1000, 1000, vim.schedule_wrap(refresh_visible_starters))
 
       opts.evaluate_single = true
       opts.items = {
